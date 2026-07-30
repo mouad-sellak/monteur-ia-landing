@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Monteur IA - monte tes reels par code</title>
+<meta name="description" content="Chaine de montage pour reels talking-head : coupe les silences, les repetitions et les hesitations, ecrit les sous-titres, anime le panneau. Deux moteurs de rendu, un seul fichier de contenu." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --navy: #12243F;
+    --navy-soft: #1B3055;
+    --navy-line: #2A3E5F;
+    --ambre: #F2A93B;
+    --sur-ambre: #281E0A;
+    --blanc: #FFFFFF;
+    --texte: #E8EEF8;
+    --texte-doux: #9CAEC8;
+    --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+    --max: 1080px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--navy);
+    color: var(--texte);
+    font-family: Poppins, system-ui, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .enveloppe { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+
+  /* --- Accroche --- */
+  header { padding: 84px 0 64px; border-bottom: 1px solid var(--navy-line); }
+  .etiquette {
+    display: inline-block; background: var(--ambre); color: var(--sur-ambre);
+    font-family: var(--mono); font-size: 13px; font-weight: 700; letter-spacing: 2px;
+    padding: 7px 14px; border-radius: 7px; text-transform: uppercase;
+  }
+  h1 {
+    font-size: clamp(38px, 7vw, 68px); line-height: 1.05; font-weight: 700;
+    letter-spacing: -1.6px; margin: 26px 0 0; max-width: 15ch;
+  }
+  h1 .accent { color: var(--ambre); }
+  .chapeau {
+    font-size: clamp(17px, 2.3vw, 21px); color: var(--texte-doux);
+    max-width: 58ch; margin: 22px 0 0;
+  }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+  .bouton {
+    display: inline-block; padding: 15px 28px; border-radius: 12px;
+    font-weight: 600; font-size: 16px; text-decoration: none; transition: transform .12s ease;
+  }
+  .bouton:hover { transform: translateY(-2px); }
+  .bouton-plein { background: var(--ambre); color: var(--sur-ambre); }
+  .bouton-vide { border: 1px solid var(--navy-line); color: var(--texte); }
+
+  section { padding: 72px 0; border-bottom: 1px solid var(--navy-line); }
+  h2 {
+    font-size: clamp(27px, 4vw, 38px); line-height: 1.15; font-weight: 700;
+    letter-spacing: -0.8px; margin: 0 0 14px; max-width: 22ch;
+  }
+  .intro { color: var(--texte-doux); max-width: 62ch; margin: 0 0 38px; }
+
+  /* --- Le tableau des problemes --- */
+  .probleme { border-top: 1px solid var(--navy-line); padding: 22px 0; display: grid; gap: 6px; }
+  .probleme:last-child { border-bottom: 1px solid var(--navy-line); }
+  @media (min-width: 720px) { .probleme { grid-template-columns: 1fr 1.25fr; gap: 32px; align-items: baseline; } }
+  .probleme dt { font-weight: 600; color: var(--blanc); }
+  .probleme dd { margin: 0; color: var(--texte-doux); }
+  dl { margin: 0; }
+
+  /* --- Les chiffres --- */
+  .chiffres { display: grid; gap: 20px; }
+  @media (min-width: 680px) { .chiffres { grid-template-columns: repeat(3, 1fr); } }
+  .chiffre { background: var(--navy-soft); border: 1px solid var(--navy-line); border-radius: 16px; padding: 26px; }
+  .chiffre .valeur {
+    font-size: 46px; font-weight: 700; color: var(--ambre); line-height: 1;
+    letter-spacing: -1.5px; font-variant-numeric: tabular-nums;
+  }
+  .chiffre .quoi { margin-top: 8px; font-weight: 600; }
+  .chiffre .detail { margin-top: 4px; font-size: 14px; color: var(--texte-doux); }
+
+  /* --- Les deux moteurs --- */
+  .moteurs { display: grid; gap: 20px; }
+  @media (min-width: 760px) { .moteurs { grid-template-columns: 1fr 1fr; } }
+  .moteur { background: var(--navy-soft); border: 1px solid var(--navy-line); border-radius: 16px; padding: 28px; }
+  .moteur h3 { margin: 0 0 4px; font-size: 20px; }
+  .moteur .role { font-family: var(--mono); font-size: 12px; letter-spacing: 1.5px; color: var(--ambre); text-transform: uppercase; }
+  .moteur ul { margin: 16px 0 0; padding-left: 18px; color: var(--texte-doux); }
+  .moteur li { margin-bottom: 7px; }
+
+  /* --- Code --- */
+  pre {
+    background: #0C1A30; border: 1px solid var(--navy-line); border-radius: 14px;
+    padding: 20px 22px; overflow-x: auto; font-family: var(--mono); font-size: 13.5px;
+    line-height: 1.75; color: #C8D6EC; margin: 0 0 18px;
+  }
+  pre .c { color: #6F87A8; }
+  .etape { margin-bottom: 34px; }
+  .etape h3 { font-size: 18px; margin: 0 0 10px; }
+  .etape h3 .num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border-radius: 50%; background: var(--ambre);
+    color: var(--sur-ambre); font-size: 14px; margin-right: 10px;
+  }
+  .etape p { color: var(--texte-doux); margin: 0 0 12px; max-width: 62ch; }
+
+  .note {
+    border-left: 3px solid var(--ambre); padding: 4px 0 4px 18px;
+    color: var(--texte-doux); margin: 24px 0 0; max-width: 62ch;
+  }
+  .note strong { color: var(--blanc); }
+
+  footer { padding: 56px 0 72px; color: var(--texte-doux); font-size: 14px; }
+  footer a { color: var(--ambre); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="enveloppe">
+    <span class="etiquette">/Monteur IA</span>
+    <h1>Monte tes reels <span class="accent">par code</span>, pas à la souris.</h1>
+    <p class="chapeau">
+      Tu déposes un rush filmé au téléphone. La chaîne nettoie ta parole, écrit les
+      sous-titres, anime le panneau et sort un MP4 vertical prêt à publier.
+      Refaire une vidéo, c'est changer un texte et relancer le rendu.
+    </p>
+    <div class="actions">
+      <a class="bouton bouton-plein" href="#installer">Installer</a>
+      <a class="bouton bouton-vide" href="#ce-que-ca-regle">Ce que ça règle</a>
+    </div>
+  </div>
+</header>
+
+<section id="ce-que-ca-regle">
+  <div class="enveloppe">
+    <h2>Le vrai travail, c'est ce qu'on ne voit pas</h2>
+    <p class="intro">
+      Couper des silences, n'importe quel outil le fait. Ce qui prend du temps et se
+      remarque à la publication, c'est le reste.
+    </p>
+    <dl>
+      <div class="probleme">
+        <dt>Les phrases que tu as recommencées</dt>
+        <dd>Elles n'apparaissent qu'une fois les silences coupés : tant qu'il reste du
+        blanc entre deux essais, la transcription les fusionne en une seule phrase.</dd>
+      </div>
+      <div class="probleme">
+        <dt>Les « euh » tenus</dt>
+        <dd>Aucun moteur de transcription ne les écrit. Ils sont trouvés au son :
+        un trou dans le texte, de l'énergie dedans, et un spectre de voyelle.</dd>
+      </div>
+      <div class="probleme">
+        <dt>Les sous-titres coupés n'importe où</dt>
+        <dd>Jamais deux phrases dans la même pastille, jamais une ligne qui finit sur
+        un mot outil, jamais de clignotement sous 0,7 seconde.</dd>
+      </div>
+      <div class="probleme">
+        <dt>Le texte masqué par l'interface</dt>
+        <dd>Instagram recouvre 250 pixels en haut et 420 en bas. Un script dessine
+        ces zones sur une image de contrôle avant que tu ne lances le rendu.</dd>
+      </div>
+      <div class="probleme">
+        <dt>Les effets sonores inaudibles</dt>
+        <dd>Un pourcentage de volume ne veut rien dire tant qu'on n'a pas mesuré le
+        fichier de départ. Ils sont normalisés à une crête connue, puis réglés.</dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<section>
+  <div class="enveloppe">
+    <h2>Sur un vrai montage</h2>
+    <p class="intro">
+      Les chiffres ci-dessous viennent d'un reel réel de 84 secondes, monté avec cette
+      chaîne. Rien n'est arrondi en sa faveur.
+    </p>
+    <div class="chiffres">
+      <div class="chiffre">
+        <div class="valeur">84 &rarr; 44</div>
+        <div class="quoi">secondes</div>
+        <div class="detail">silences, répétitions et hésitations retirés</div>
+      </div>
+      <div class="chiffre">
+        <div class="valeur">3</div>
+        <div class="quoi">répétitions trouvées</div>
+        <div class="detail">invisibles avant la coupe des silences</div>
+      </div>
+      <div class="chiffre">
+        <div class="valeur">4</div>
+        <div class="quoi">hésitations coupées</div>
+        <div class="detail">aucune n'était transcrite</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="enveloppe">
+    <h2>Deux moteurs, un seul fichier de contenu</h2>
+    <p class="intro">
+      Le même montage se rend avec l'un ou l'autre. Ils lisent les mêmes JSON :
+      tu changes un texte à un seul endroit.
+    </p>
+    <div class="moteurs">
+      <div class="moteur">
+        <span class="role">Par défaut</span>
+        <h3>Remotion</h3>
+        <ul>
+          <li>Une image de contrôle en 5 secondes</li>
+          <li>Animations au ressort, réglées par le code</li>
+          <li>React et TypeScript</li>
+        </ul>
+      </div>
+      <div class="moteur">
+        <span class="role">En complément</span>
+        <h3>HyperFrames</h3>
+        <ul>
+          <li>Un linter qui attrape les chevauchements de clips et les polices non résolvables</li>
+          <li>HTML, CSS et GSAP : plus accessible si tu délègues</li>
+          <li>Rendu plus lent, à réserver au rendu final</li>
+        </ul>
+      </div>
+    </div>
+    <p class="note">
+      <strong>Le choix par défaut est Remotion</strong>, pour une raison qui décide de tout :
+      un montage demande dix ajustements de cadrage et d'équilibre. Cinq secondes par
+      contrôle contre sept minutes, l'écart se joue là.
+    </p>
+  </div>
+</section>
+
+<section id="installer">
+  <div class="enveloppe">
+    <h2>Installer</h2>
+    <p class="intro">Sur macOS. Compte dix minutes, dont le téléchargement du modèle de transcription.</p>
+
+    <div class="etape">
+      <h3><span class="num">1</span>Les outils système</h3>
+      <pre><span class="c"># ffmpeg pour le son et l'image, whisper pour la transcription</span>
+brew install ffmpeg whisper-cpp
+python3 -m pip install --user numpy</pre>
+    </div>
+
+    <div class="etape">
+      <h3><span class="num">2</span>Le modèle de transcription</h3>
+      <p>Environ 1,5 Go, à télécharger une seule fois.</p>
+      <pre>mkdir -p ~/.cache/whisper
+curl -L -o ~/.cache/whisper/ggml-large-v3-turbo.bin \
+  https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin</pre>
+    </div>
+
+    <div class="etape">
+      <h3><span class="num">3</span>Le projet</h3>
+      <pre>cd remotion &amp;&amp; npm install &amp;&amp; cd ..
+./scripts/faire-effets-sonores.sh   <span class="c"># synthétise les 5 effets</span></pre>
+    </div>
+
+    <div class="etape">
+      <h3><span class="num">4</span>Ton premier montage</h3>
+      <pre><span class="c"># préparer : coupe, voix, transcription mot à mot</span>
+./scripts/preparer-rush.sh /chemin/vers/rush.MOV
+
+<span class="c"># contrôler AVANT de rendre : rien ne doit toucher une bande rouge</span>
+cd remotion &amp;&amp; npx remotion still TeteMotion out/qc.png --frame=60 &amp;&amp; cd ..
+./scripts/verifier-safe-zones.sh remotion/out/qc.png
+
+<span class="c"># rendre</span>
+cd remotion &amp;&amp; npx remotion render TeteMotion out/montage.mp4</pre>
+    </div>
+
+    <p class="note">
+      <strong>Le dépôt ne contient aucun média tiers.</strong> Les cinq effets sonores sont
+      synthétisés à l'installation par ffmpeg. Aucun échantillon sous licence incertaine,
+      et un rendu identique sur n'importe quelle machine.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="enveloppe">
+    Monteur IA — une chaîne de montage par code pour les reels talking-head.<br />
+    Construit et utilisé au quotidien par <a href="https://infosoftware.fr">InfoSoftware</a>.<br />
+    Licence commerciale : l'achat donne un droit d'usage, pas de redistribution.
+  </div>
+</footer>
+
+</body>
+</html>
