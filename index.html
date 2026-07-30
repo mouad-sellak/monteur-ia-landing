@@ -117,6 +117,8 @@
 
   footer { padding: 56px 0 72px; color: var(--texte-doux); font-size: 14px; }
   footer a { color: var(--ambre); }
+  code { font-family: var(--mono); font-size: 0.92em; background: #0C1A30; padding: 2px 7px; border-radius: 5px; color: var(--ambre); }
+  .etape p code { white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -238,47 +240,51 @@
 
 <section id="installer">
   <div class="enveloppe">
-    <h2>Installer</h2>
-    <p class="intro">Sur macOS. Compte dix minutes, dont le téléchargement du modèle de transcription.</p>
+    <h2>Installer, sans être technicien</h2>
+    <p class="intro">
+      Une seule commande. Elle regarde ce que tu as déjà, te donne la ligne exacte à
+      copier pour ce qui manque, et fait le reste toute seule.
+      Windows, macOS et Linux.
+    </p>
 
     <div class="etape">
-      <h3><span class="num">1</span>Les outils système</h3>
-      <pre><span class="c"># ffmpeg pour le son et l'image, whisper pour la transcription</span>
-brew install ffmpeg whisper-cpp
-python3 -m pip install --user numpy</pre>
+      <h3><span class="num">1</span>Ouvre le terminal</h3>
+      <p>
+        Mac : <code>Cmd</code> + <code>Espace</code>, tape « Terminal ».
+        Windows : touche Windows, tape « PowerShell ».
+        Linux : <code>Ctrl</code> + <code>Alt</code> + <code>T</code>.
+      </p>
     </div>
 
     <div class="etape">
-      <h3><span class="num">2</span>Le modèle de transcription</h3>
-      <p>Environ 1,5 Go, à télécharger une seule fois.</p>
-      <pre>mkdir -p ~/.cache/whisper
-curl -L -o ~/.cache/whisper/ggml-large-v3-turbo.bin \
-  https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin</pre>
+      <h3><span class="num">2</span>Place-toi dans le dossier</h3>
+      <p>Tape <code>cd</code> suivi d'un espace, puis <strong>glisse le dossier dans la fenêtre</strong>. Le chemin s'écrit tout seul.</p>
     </div>
 
     <div class="etape">
-      <h3><span class="num">3</span>Le projet</h3>
-      <pre>cd remotion &amp;&amp; npm install &amp;&amp; cd ..
-./scripts/faire-effets-sonores.sh   <span class="c"># synthétise les 5 effets</span></pre>
+      <h3><span class="num">3</span>Lance l'installation</h3>
+      <pre>python3 monteur.py installer</pre>
+      <p>Compte vingt minutes la première fois, dont le téléchargement du modèle qui comprend ta voix.</p>
     </div>
 
     <div class="etape">
-      <h3><span class="num">4</span>Ton premier montage</h3>
-      <pre><span class="c"># préparer : coupe, voix, transcription mot à mot</span>
-./scripts/preparer-rush.sh /chemin/vers/rush.MOV
-
-<span class="c"># contrôler AVANT de rendre : rien ne doit toucher une bande rouge</span>
-cd remotion &amp;&amp; npx remotion still TeteMotion out/qc.png --frame=60 &amp;&amp; cd ..
-./scripts/verifier-safe-zones.sh remotion/out/qc.png
-
-<span class="c"># rendre</span>
-cd remotion &amp;&amp; npx remotion render TeteMotion out/montage.mp4</pre>
+      <h3><span class="num">4</span>Monte ta première vidéo</h3>
+      <pre>python3 monteur.py preparer ma-video.mov   <span class="c"># coupe, nettoie, transcrit</span>
+python3 monteur.py verifier                <span class="c"># rien de masqué par Instagram ?</span>
+python3 monteur.py rendre                  <span class="c"># fabrique la vidéo</span></pre>
+      <p>Tu ne veux rien retenir ? Tape <code>python3 monteur.py</code> tout court : un menu s'affiche et tu choisis un chiffre.</p>
     </div>
 
     <p class="note">
+      <strong>Une étape reste à toi, et c'est voulu.</strong> Après la coupe des silences,
+      relis-toi : tu verras des phrases que tu as recommencées sans t'en rendre compte.
+      Aucun outil ne peut décider à ta place laquelle des deux prises garder.
+    </p>
+
+    <p class="note">
       <strong>Le dépôt ne contient aucun média tiers.</strong> Les cinq effets sonores sont
-      synthétisés à l'installation par ffmpeg. Aucun échantillon sous licence incertaine,
-      et un rendu identique sur n'importe quelle machine.
+      synthétisés à l'installation. Aucun échantillon sous licence incertaine, et un rendu
+      identique sur n'importe quelle machine.
     </p>
   </div>
 </section>
